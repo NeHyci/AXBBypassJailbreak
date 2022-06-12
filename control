@@ -1,0 +1,9 @@
+Package: nehyci.axbbypassjailbreak
+Name: AXBBypassJailbreak
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: 安馨办 屏蔽越狱检测
+Maintainer: nehyci
+Author: nehyci
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000)
