@@ -7,7 +7,7 @@
 #include <dlfcn.h>
 
 static bool isJailbreakFile(const char *path) {
-    if (path) {
+    if (path) { // On my device, strcmp() does not validate its first argument, if its first argument is NULL, the application will crash.
         if (!strcmp(path, "/Applications/Cydia.app")
         || !strcmp(path, "/var/lib/cydia")
         || !strcmp(path, "/var/mobile/Library/Cydia")
@@ -56,7 +56,7 @@ static bool isJailbreakFile(const char *path) {
 }
 %hookf(int, dladdr, const void *addr, Dl_info *info) {
     if (addr == &stat
-    || addr == &lstat) {
+    || addr == &lstat) { // This app has a simple hook detection for stat() and lstat().
         info->dli_fname = "/usr/lib/system/libsystem_kernel.dylib";
     }
     return %orig;
@@ -68,12 +68,13 @@ static bool isJailbreakFile(const char *path) {
     return %orig;
 }
 %hookf(int, lstat, const char *path, struct stat *st) {
-    if (!%orig) {
-        if (st) {
-            if ((st->st_mode & S_IFLNK) == S_IFLNK) {
-                st->st_mode = S_IFDIR;
-            }
-        }
+    if (path && st && (st->st_mode & S_IFLNK) == S_IFLNK) {
+        if (!strcmp(path, "/Applications")
+        || !strcmp(path, "/usr/share")
+        || !strcmp(path, "/usr/libexec")
+        || !strcmp(path, "/usr/include")
+        || !strcmp(path, "/Library/Ringtones"))
+        st->st_mode = S_IFDIR;
     }
     return %orig;
 }
